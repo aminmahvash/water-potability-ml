@@ -1,57 +1,58 @@
-# پروژه پایانی درس مبانی یادگیری ماشین: طبقه‌بندی قابلیت شرب آب (Water Potability)
+# Water Potability Classification — Final Project
 
-**دانشگاه اصفهان — دانشکده مهندسی کامپیوتر**  
-* **استاد درس:** دکتر مائده جمالی  
-* **دستیاران استاد:** زهرا مرتضوی، امیرطه‌ها نجف، میعاد کیمیاگری، سپهر رجبی  
-
----
-
-## 📌 نگاه کلی به پروژه
-
-هدف این پروژه، ارائه یک خط لوله (Pipeline) کامل یادگیری ماشین برای پیش‌بینی قابلیت شرب آب بر اساس ۹ ویژگی فیزیکی و شیمیایی (مانند pH، سختی، سولفات، کربن ارگانیک و...) است.
-
-### ⚠️ محدودیت اصلی پروژه (Constraint)
-تمامی ۱۰ الگوریتم طبقه‌بندی استفاده‌شده در این پروژه **کاملاً از صفر (From Scratch) و تنها با استفاده از کتابخانه NumPy** پیاده‌سازی شده‌اند. از هیچ‌کدام از کلاس‌های آماده مدل در `scikit-learn`، `xgboost` یا `lightgbm` استفاده نشده است. استفاده از `scikit-learn` تنها به موارد زیر محدود بوده است:
-* `train_test_split` و `StandardScaler` (پیش‌پردازش محض)
-* `GridSearchCV` (تنها به عنوان حلقه جستجوی هایپرپارامتر روی متدهای `fit`/`predict` پیاده‌سازی‌شده)
-* `BaseEstimator` / `ClassifierMixin` (مدیریت پارامترها و سازگاری با اسکلرن)
-* `sklearn.metrics` (محاسبه معیارهای ارزیابی)
+**University of Isfahan — Faculty of Computer Engineering**  
+* **Course:** Machine Learning Fundamentals  
+* **Instructor:** Dr. Maedeh Jamali  
+* **Teaching Assistants:** Zahra Mortazavi, Amirtaha Najaf, Miad Kimiagari, Sepehr Rajabi  
 
 ---
 
-## 🏗 ساختار پروژه (در قالب یک نوت‌بوک یکپارچه)
+## 📌 Project Overview
 
-تمامی مراحل پروژه در یک فایل نوت‌بوک (`.ipynb`) پیاده‌سازی شده که شامل ۳ فاز زیر است:
+This project implements a complete, end-to-end machine learning pipeline to predict water potability based on 9 chemical and physical features (pH, Hardness, Solids, Chloramines, Sulfate, Conductivity, Organic Carbon, Trihalomethanes, Turbidity).
 
-### فاز ۱: تحلیل اکتشافی داده‌ها (EDA) و پیش‌پردازش
-* **مشخصات داده‌ها:** ۳,۲۷۶ سطر و ۱۰ ستون (۹ ویژگی + ۱ متغیر هدف).
-* **توزیع کلاس هدف:** ۶۰.۹۹٪ نامناسب برای شرب / ۳۹.۰۱٪ قابل شرب (توازن نسبی برهم خورده که با Stratified Split و معیار انتخاب F1 مدیریت شد).
-* **داده‌های مفقود:** مقداردهی داده‌های مفقود سولفات (۲۳.۸۴٪)، pH (۱۴.۹۹٪) و تری‌هالومتان‌ها (۴.۹۵٪) با میانه داده‌های آموزش (Training Median) بعد از Split جهت جلوگیری از Data Leakage.
-* **تحلیل بصری:** هسیتوگرام‌ها، نمودارهای جعبه‌ای و ماتریس همبستگی (مشاهده همبستگی خطی بسیار ضعیف بین ویژگی‌ها و متغیر هدف که نشان‌دهنده غیرخطی بودن مسئله است).
-* **تقسیم داده‌ها و مقیاس‌دهی:** تقسیم ۸۰/۲۰ به صورت Stratified و اعمال `StandardScaler` فیت‌شده فقط روی داده‌های آموزش.
-
-### فاز ۲: پیاده‌سازی از صفر ۱۰ الگوریتم یادگیری نظارت‌شده
-در ابتدا کلاس پایه `DecisionTreeScratch` (الگوریتم CART) پیاده‌سازی شده و سپس مدل‌های زیر با NumPy ساخته شده‌اند:
-
-1. **Logistic Regression:** رگرسیون لوجستیک با Grad-Descent و جریمه L2.
-2. **KNN:** محاسبات برداری ماتریس فاصله اقلیدسی و رأی‌گیری وزنی/یکسان.
-3. **SVM:** الگوریتم Kernel Pegasos با کرنل‌های خطی و RBF.
-4. **Decision Tree:** درخت تصمیم CART بر پایه Gini و Entropy.
-5. **Random Forest:** الگوریتم Bagging دستی با Bootstrap و زیرمجموعه تصادفی ویژگی‌ها ($\sqrt{d}$).
-6. **Gradient Boosting:** درخت‌های رگرسیون متوالی روی پسماندهای Log-Loss.
-7. **AdaBoost:** الگوریتم Discrete SAMME با درخت‌های کم‌عمق (Stumps).
-8. **MLP Classifier:** شبکه عصبی چندلایه با انتشار رو به جلو و عقب دستی.
-9. **XGBoost-Style (Bonus):** بوستینگ نیوتن ($g$ و $h$) با ساختار درخت Depth-wise و جریمه L2/Gamma.
-10. **LightGBM-Style (Bonus):** بوستینگ نیوتن با ساختار درخت Leaf-wise.
-
-### فاز ۳: ارزیابی همه‌جانبه و مقایسه مدل‌ها
-ارزیابی تمامی مدل‌ها روی ۶۵۶ نمونه تست با معیارهای Accuracy، Precision، Recall و F1-Score به همراه رسم ماتریس اغتشاش و نمودار میله‌ای مقایسه‌ای.
+### ⚠️ Core Constraint
+Every single classification algorithm in this project is implemented **entirely from scratch using pure NumPy**. No pre-built model classes from `scikit-learn`, `xgboost`, or `lightgbm` were used. The use of `scikit-learn` is strictly restricted to:
+* `train_test_split` and `StandardScaler` (data preprocessing only)
+* `GridSearchCV` (as a generic hyperparameter tuning loop wrapping our custom fit/predict methods)
+* `BaseEstimator` / `ClassifierMixin` (for Scikit-Learn pipeline compatibility)
+* `sklearn.metrics` (evaluation metrics computation)
 
 ---
 
-## 📊 نتایج نهایی (مرتب‌شده بر اساس F1-Score)
+## 🏗 Pipeline Architecture (Single Notebook)
 
-| مدل | Accuracy | Precision | Recall | F1-Score |
+All three phases of the project are fully integrated into a single Jupyter Notebook (`Water_Potability_Project.ipynb`):
+
+### Phase 1: Preprocessing & Exploratory Data Analysis (EDA)
+* **Dataset:** 3,276 samples × 10 columns (9 float features + 1 target).
+* **Class Imbalance:** 60.99% non-potable vs. 39.01% potable (handled via stratified splitting and F1-score optimization).
+* **Missing Values:** Median imputation on Sulfate (23.84%), pH (14.99%), and Trihalomethanes (4.95%) computed strictly on training data after splitting to prevent data leakage.
+* **Visual Insights:** Feature distributions, boxplots for outliers, and correlation heatmaps confirming near-zero linear correlation between features and target—signaling a non-linear problem space.
+* **Splitting & Scaling:** 80/20 stratified train/test split followed by `StandardScaler`.
+
+### Phase 2: From-Scratch Supervised Learning (10 Models)
+Built on top of a foundational custom CART Decision Tree (`DecisionTreeScratch`), 10 estimators were implemented using vectorized NumPy:
+
+1. **Logistic Regression:** Sigmoid + Batch Gradient Descent with L2 regularization.
+2. **KNN:** Vectorized Euclidean distance matrix with uniform/distance-weighted voting.
+3. **SVM:** Kernel Pegasos (stochastic sub-gradient descent) with Linear and RBF kernels.
+4. **Decision Tree:** CART implementation with Gini and Entropy criteria.
+5. **Random Forest:** Manual Bagging with Bootstrap sampling and $\sqrt{d}$ feature subspace splits.
+6. **Gradient Boosting:** Sequential regression trees fit on log-loss residuals.
+7. **AdaBoost:** Discrete SAMME with decision stumps and sample re-weighting.
+8. **MLP Classifier:** Fully-connected feed-forward neural network with manual backpropagation.
+9. **XGBoost-Style (Bonus):** Newton boosting ($g$ & $h$) with depth-wise tree growth and regularized gain.
+10. **LightGBM-Style (Bonus):** Newton boosting with leaf-wise tree growth.
+
+### Phase 3: Evaluation & Model Benchmarking
+Comprehensive benchmarking on the 656-sample test set using Accuracy, Precision, Recall, F1-Score, Confusion Matrices, and comparative performance plots.
+
+---
+
+## 📊 Final Results (Sorted by F1-Score)
+
+| Model | Accuracy | Precision | Recall | F1-Score |
 | :--- | :---: | :---: | :---: | :---: |
 | **SVM (RBF)** | 0.553 | 0.455 | **0.738** | **0.563** |
 | **MLP Classifier** | 0.659 | 0.593 | 0.398 | 0.477 |
@@ -64,20 +65,20 @@
 | **AdaBoost** | 0.608 | 0.492 | 0.125 | 0.199 |
 | **Logistic Regression** | 0.610 | 0.000 | 0.000 | 0.000 |
 
-### 🔍 یافته‌های کلیدی
-* **برتری SVM RBF:** الگوریتم SVM با کرنل RBF بالاترین F1-Score را به دست آورد که ناشی از Recall بالای آن در شناسایی نمونه‌های قابل شرب است.
-* **عدم خطی بودن مسئله:** مدل Logistic Regression روی تمامی داده‌های تست کلاس ۰ (غیرقابل شرب) را پیش‌بینی کرد و F1 صفر آورد؛ این امر کاملاً یافته‌های فاز ۱ مبنی بر غیرخطی بودن مرز تصمیم‌گیری را تأیید می‌کند.
-* **عملکرد مدل‌های انسامبل:** مدل‌های بوستینگ و جنگل تصادفی Precision بالا اما Recall پایینی داشتند؛ این مدل‌ها در مواجهه با سیگنال‌های ضعیف، رویکرد محافظه‌کارانه‌ای اتخاذ کرده و به سمت کلاس اکثریت متمایل شدند.
+### 🔍 Key Findings
+* **SVM RBF Superiority:** SVM with an RBF kernel achieved the highest F1-Score due to its strong Recall, making it effective at detecting potable water samples.
+* **Non-Linear Decision Boundary:** Logistic Regression predicted the majority class for all test samples (0 Precision/Recall), confirming that the dataset is non-linearly separable.
+* **Ensemble Behavior:** Tree-based ensembles (Random Forest, Gradient Boosting, XGBoost) exhibited high Precision but lower Recall, leaning conservatively toward the majority class.
 
 ---
 
-## 📁 محتویات مخزن و نحوه اجرا
+## 📁 Repository Structure & Execution
 
-* `Water_Potability_Project.ipynb`: نوت‌بوک اصلی پروژه شامل هر سه فاز.
-* `Water_Potability_Project_Report_FA.docx`: گزارش کامل پروژه به زبان فارسی.
+* `Water_Potability_Project.ipynb`: The primary notebook containing all three phases.
+* `Water_Potability_Project_Report_FA.docx`: Detailed project report (Persian).
 
-### نحوه اجرا
-1. نوت‌بوک `Water_Potability_Project.ipynb` را در Kaggle یا Jupyter Notebook باز کنید.
-2. مجموعه‌داده Water Potability را به آن متصل کنید.
-3. سلول‌ها را به ترتیب اجرا کنید.
-> **نکته:** به دلیل پیاده‌سازی خالص مدل‌ها با NumPy (بدون بهینه‌سازی‌های C/Cython)، اجرای کامل نوت‌بوک و GridSearch حدود ۲۰ الی ۲۵ دقیقه زمان می‌برد.
+### How to Run
+1. Open `Water_Potability_Project.ipynb` in Kaggle or Jupyter Notebook.
+2. Attach the Water Potability dataset.
+3. Run all cells sequentially.
+> **Note:** Because all algorithms are implemented in pure Python/NumPy without C/Cython optimizations, running the full notebook with GridSearch takes approximately 20–25 minutes.
